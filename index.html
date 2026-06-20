@@ -1,117 +1,612 @@
+``html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>고대 식당 안내</title>
+    <title>고려대학교 식당 안내</title>
     <style>
-        /* 간단한 화면 기본 스타일링 (과제 요구사항에 맞게 수정 가능) */
-        body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
-        #app { max-width: 800px; margin: 0 auto; }
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; }
-        .modal-content { background:#fff; padding:20px; border-radius:8px; max-width:500px; width:100%; position:relative; }
+         {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #8B0029 0%, #C8102E 50%, #8B0029 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #8B0029;
+            margin-bottom: 10px;
+        }
+
+        .logo span {
+            color: #C8102E;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .filter-btn.active {
+            background: #C8102E;
+            color: white;
+        }
+
+        .cafeteria-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .cafeteria-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .cafeteria-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #8B0029, #C8102E);
+            color: white;
+            padding: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+
+        .card-header .location {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            background: #FFF0F3;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+
+        .info-content {
+            flex: 1;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #999;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-open {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .status-closed {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .menu-list {
+            list-style: none;
+        }
+
+        .menu-list li {
+            padding: 8px 0;
+            border-bottom: 1px dashed #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .menu-list li:last-child {
+            border-bottom: none;
+        }
+
+        .menu-price {
+            color: #C8102E;
+            font-weight: 600;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .tag {
+            padding: 5px 12px;
+            background: #F5F5F5;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: white;
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 1.8rem;
+            }
+
+            .cafeteria-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-btn {
+                padding: 10px 18px;
+                font-size: 0.85rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <div class="logo">🏫 고려대학교 <span>식당 안내</span></div>
+            <p>캠퍼스 내 식당 운영시간 및 메뉴 정보</p>
+        </header>
 
-    <div id="app">로딩 중...</div>
-    
-    <div id="modal-root"></div>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">전체</button>
+            <button class="filter-btn" data-filter="student">학생식당</button>
+            <button class="filter-btn" data-filter="faculty">교직원식당</button>
+            <button class="filter-btn" data-filter="cafe">카페</button>
+            <button class="filter-btn" data-filter="convenience">편의시설</button>
+        </div>
+
+        <div class="cafeteria-grid" id="cafeteriaGrid">
+            <!-- 카드들이 여기에 생성됩니다 -->
+        </div>
+
+        <footer>
+            <p>© 2024 고려대학교 식당 안내 | 정보 업데이트: 2024년 1월</p>
+            <p style="margin-top: 10px; font-size: 0.9rem;">
+                ※ 운영시간 및 메뉴는 학교 사정에 따라 변경될 수 있습니다
+            </p>
+        </footer>
+    </div>
 
     <script>
-       /** * data.js * 고려대학교 근처 식당 추천 프로그램 - 시드 데이터 * * 좌표는 고려대학교 안암캠퍼스 일대를 기준으로 한 "근사치"입니다. * 실제 서비스에 사용할 경우, 지오코딩 API 등으로 정확한 좌표를 다시 확인하세요. * 식당명/메뉴/리뷰는 과제 데모용 가상의 데이터입니다. */ const BUILDINGS = [ { id: "b01", name: "정문", lat: 37.5896, lng: 127.0327 }, { id: "b02", name: "후문", lat: 37.5934, lng: 127.0295 }, { id: "b03", name: "중앙광장", lat: 37.5889, lng: 127.0322 }, { id: "b04", name: "하나스퀘어", lat: 37.5887, lng: 127.0340 }, { id: "b05", name: "과학도서관", lat: 37.5873, lng: 127.0346 }, { id: "b06", name: "안암역 5번출구", lat: 37.5862, lng: 127.0285 }, { id: "b07", name: "법학관", lat: 37.5908, lng: 127.0317 }, { id: "b08", name: "글로벌하우스(기숙사)", lat: 37.5917, lng: 127.0356 }, ]; // 혼잡도 단계 정의 (시그니처 UI: 도서관 좌석 현황 게이지에서 착안) const CONGESTION_LEVELS = [ { key: "여유", seats: 4, color: "var(--ok)" }, { key: "보통", seats: 2, color: "var(--warn)" }, { key: "혼잡", seats: 0, color: "var(--bad)" }, ]; const CATEGORIES = ["전체", "한식", "일식", "중식", "양식", "카페", "기타"]; const RESTAURANTS = [ { id: "r01", name: "안암밥상", category: "한식", address: "서울 성북구 안암로 14길 8", lat: 37.5901, lng: 127.0330, priceRange: "8,000 ~ 10,000원", description: "매일 바뀌는 집밥 백반 전문점. 1인 식사하기 좋아요.", menu: [ { name: "제육볶음정식", price: 9000 }, { name: "된장찌개정식", price: 8000 }, { name: "고등어구이정식", price: 9500 }, ], seedReviews: [ { rating: 5, text: "반찬이 자주 바뀌어서 질리지 않아요. 가성비 최고." }, { rating: 4, text: "점심시간엔 줄이 좀 있는 편이에요." }, ], }, { id: "r02", name: "고대순대국", category: "한식", address: "서울 성북구 고려대로 20길 5", lat: 37.5894, lng: 127.0312, priceRange: "9,000 ~ 11,000원", description: "24시간 운영하는 순대국밥집. 해장하기 좋습니다.", menu: [ { name: "순대국밥", price: 9000 }, { name: "모듬순대", price: 15000 }, { name: "내장탕", price: 10000 }, ], seedReviews: [ { rating: 5, text: "새벽에도 열어서 너무 좋아요. 국물이 진해요." }, ], }, { id: "r03", name: "정문국밥", category: "한식", address: "서울 성북구 안암로 9", lat: 37.5899, lng: 127.0325, priceRange: "8,500 ~ 10,500원", description: "사골 육수를 직접 우려내는 노포 국밥집.", menu: [ { name: "뼈해장국", price: 9500 }, { name: "콩나물국밥", price: 8500 }, ], seedReviews: [ { rating: 4, text: "자리는 좁지만 맛은 보장합니다." }, ], }, { id: "r04", name: "참살이찌개마을", category: "한식", address: "서울 성북구 참살이길 12", lat: 37.5917, lng: 127.0299, priceRange: "8,000 ~ 9,500원", description: "얼큰한 찌개류 전문, 2인 이상 모임에도 좋아요.", menu: [ { name: "김치찌개", price: 8000 }, { name: "부대찌개(2인)", price: 19000 }, ], seedReviews: [ { rating: 4, text: "양이 많아서 둘이 가도 충분해요." }, ], }, { id: "r05", name: "스시안암", category: "일식", address: "서울 성북구 안암로 17", lat: 37.5890, lng: 127.0335, priceRange: "12,000 ~ 18,000원", description: "캐주얼하게 즐기는 점심 초밥 세트 전문.", menu: [ { name: "모듬초밥", price: 15000 }, { name: "연어덮밥", price: 13000 }, ], seedReviews: [ { rating: 5, text: "런치 세트 가성비가 훌륭해요." }, { rating: 3, text: "주말엔 웨이팅이 좀 있어요." }, ], }, { id: "r06", name: "라멘공방 후문점", category: "일식", address: "서울 성북구 종암로 3길 6", lat: 37.5930, lng: 127.0291, priceRange: "9,000 ~ 11,000원", description: "진한 돈코츠 육수가 특징인 라멘 전문점.", menu: [ { name: "돈코츠라멘", price: 9500 }, { name: "차슈라멘", price: 11000 }, ], seedReviews: [ { rating: 5, text: "국물 진하고 면발도 쫄깃해요." }, ], }, { id: "r07", name: "돈카츠하루", category: "일식", address: "서울 성북구 고려대로 25길 2", lat: 37.5885, lng: 127.0316, priceRange: "10,000 ~ 13,000원", description: "두꺼운 등심 돈카츠가 시그니처인 일식 경양식집.", menu: [ { name: "등심카츠정식", price: 11000 }, { name: "치즈카츠정식", price: 12500 }, ], seedReviews: [ { rating: 4, text: "바삭함이 살아있어요. 소스도 맛있어요." }, ], }, { id: "r08", name: "교우반점", category: "중식", address: "서울 성북구 안암로 11", lat: 37.5896, lng: 127.0319, priceRange: "7,000 ~ 13,000원", description: "오래된 동네 중국집, 짜장면 곱빼기가 인기.", menu: [ { name: "짜장면", price: 7000 }, { name: "짬뽕", price: 8500 }, { name: "탕수육(소)", price: 18000 }, ], seedReviews: [ { rating: 4, text: "양이 많아서 곱빼기 안 시켜도 돼요." }, ], }, { id: "r09", name: "안암짬뽕", category: "중식", address: "서울 성북구 안암로 19길 4", lat: 37.5908, lng: 127.0334, priceRange: "8,500 ~ 9,500원", description: "얼큰한 짬뽕 한 그릇이 생각날 때.", menu: [ { name: "짬뽕", price: 8500 }, { name: "삼선짬뽕", price: 9500 }, ], seedReviews: [ { rating: 5, text: "해물이 푸짐하게 들어가요." }, ], }, { id: "r10", name: "파스타테이블", category: "양식", address: "서울 성북구 하나로 6", lat: 37.5882, lng: 127.0341, priceRange: "11,000 ~ 14,000원", description: "분위기 좋은 캐주얼 파스타 전문점.", menu: [ { name: "까르보나라", price: 12000 }, { name: "토마토파스타", price: 11000 }, ], seedReviews: [ { rating: 4, text: "분위기가 좋아서 약속 장소로 자주 가요." }, ], }, { id: "r11", name: "화이트버거 고대점", category: "양식", address: "서울 성북구 고려대로 18", lat: 37.5901, lng: 127.0308, priceRange: "8,000 ~ 11,000원", description: "패티를 직접 굽는 수제버거 전문점.", menu: [ { name: "치즈버거세트", price: 9500 }, { name: "베이컨버거세트", price: 10500 }, ], seedReviews: [ { rating: 5, text: "패티 두께가 두툼해서 든든해요." }, ], }, { id: "r12", name: "스테이크하우스 안암", category: "양식", address: "서울 성북구 하나로 14", lat: 37.5878, lng: 127.0349, priceRange: "18,000 ~ 28,000원", description: "특별한 날 가기 좋은 스테이크 전문점.", menu: [ { name: "안심스테이크", price: 22000 }, { name: "모듬스테이크(2인)", price: 42000 }, ], seedReviews: [ { rating: 4, text: "가격대는 있지만 분위기와 맛 모두 만족." }, ], }, { id: "r13", name: "카페 참살이", category: "카페", address: "서울 성북구 참살이길 5", lat: 37.5915, lng: 127.0301, priceRange: "4,500 ~ 7,000원", description: "직접 굽는 베이커리가 있는 카페.", menu: [ { name: "아메리카노", price: 4500 }, { name: "크로플", price: 6500 }, ], seedReviews: [ { rating: 5, text: "크로플이 정말 맛있어요. 콘센트도 많아요." }, ], }, { id: "r14", name: "고대상회 커피", category: "카페", address: "서울 성북구 안암로 6", lat: 37.5893, lng: 127.0328, priceRange: "4,000 ~ 6,500원", description: "학생들이 즐겨 찾는 가성비 학생 카페.", menu: [ { name: "아메리카노", price: 4000 }, { name: "카페라떼", price: 4800 }, ], seedReviews: [ { rating: 4, text: "가격이 착해서 매일 가도 부담 없어요." }, ], }, { id: "r15", name: "모카하우스", category: "카페", address: "서울 성북구 하나로 2길 9", lat: 37.5870, lng: 127.0338, priceRange: "5,000 ~ 7,500원", description: "조용해서 과제하기 좋은 작업용 카페.", menu: [ { name: "카페모카", price: 5500 }, { name: "콜드브루", price: 5500 }, ], seedReviews: [ { rating: 5, text: "좌석이 편안하고 조용해서 공부하기 좋아요." }, ], }, { id: "r16", name: "안암분식", category: "기타", address: "서울 성북구 안암로 13길 3", lat: 37.5902, lng: 127.0315, priceRange: "3,000 ~ 6,000원", description: "가볍게 한 끼 또는 간식으로 좋은 분식집.", menu: [ { name: "떡볶이", price: 4000 }, { name: "순대", price: 4000 }, { name: "김밥", price: 3000 }, ], seedReviews: [ { rating: 4, text: "공강 시간에 빠르게 먹기 좋아요." }, ], }, { id: "r17", name: "그린샐러드바", category: "기타", address: "서울 성북구 하나로 9길 1", lat: 37.5886, lng: 127.0345, priceRange: "7,000 ~ 9,500원", description: "직접 토핑을 고르는 건강한 샐러드 전문점.", menu: [ { name: "닭가슴살샐러드", price: 8500 }, { name: "포케", price: 9000 }, ], seedReviews: [ { rating: 4, text: "재료가 신선하고 토핑 선택지가 다양해요." }, ], }, ]; /** * storage.js * localStorage 기반의 아주 단순한 "백엔드 대용" 레이어. * GitHub Pages처럼 별도 서버 없이 정적 호스팅만으로 동작해야 하는 * 과제 특성상, 모든 사용자/리뷰/북마크/혼잡도 데이터를 브라우저에 저장한다. * * 주의(README 참고): 비밀번호를 평문으로 저장하므로 실제 서비스에는 * 적합하지 않다. 과제용 데모 목적의 단순화임을 명시한다. */ const KEYS = { USERS: "kff_users", CURRENT_USER: "kff_current_user", REVIEWS: "kff_reviews", CONGESTION: "kff_congestion", BOOKMARKS: "kff_bookmarks", SEEDED: "kff_seeded_v1", }; const Storage = { _read(key, fallback) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch (e) { console.error("Storage read error", key, e); return fallback; } }, _write(key, value) { localStorage.setItem(key, JSON.stringify(value)); }, getUsers() { return this._read(KEYS.USERS, {}); }, setUsers(users) { this._write(KEYS.USERS, users); }, getCurrentUser() { return this._read(KEYS.CURRENT_USER, null); }, setCurrentUser(username) { this._write(KEYS.CURRENT_USER, username); }, clearCurrentUser() { localStorage.removeItem(KEYS.CURRENT_USER); }, getReviews() { return this._read(KEYS.REVIEWS, {}); }, setReviews(reviews) { this._write(KEYS.REVIEWS, reviews); }, getCongestion() { return this._read(KEYS.CONGESTION, {}); }, setCongestion(congestion) { this._write(KEYS.CONGESTION, congestion); }, getBookmarks() { return this._read(KEYS.BOOKMARKS, {}); }, setBookmarks(bookmarks) { this._write(KEYS.BOOKMARKS, bookmarks); }, addReview(restaurantId, review) { const all = this.getReviews(); if (!all[restaurantId]) all[restaurantId] = []; all[restaurantId].unshift(review); this.setReviews(all); }, addCongestionReport(restaurantId, report) { const all = this.getCongestion(); if (!all[restaurantId]) all[restaurantId] = []; all[restaurantId].unshift(report); // 너무 길어지지 않도록 최근 20개만 보관 all[restaurantId] = all[restaurantId].slice(0, 20); this.setCongestion(all); }, toggleBookmark(username, restaurantId) { const all = this.getBookmarks(); if (!all[username]) all[username] = []; const idx = all[username].indexOf(restaurantId); if (idx >= 0) { all[username].splice(idx, 1); } else { all[username].push(restaurantId); } this.setBookmarks(all); return idx < 0; // true면 새로 추가된 것 }, isBookmarked(username, restaurantId) { const all = this.getBookmarks(); return !!(all[username] && all[username].includes(restaurantId)); }, getBookmarkIds(username) { const all = this.getBookmarks(); return all[username] || []; }, /** 최초 1회: 데모용 리뷰 시드 데이터를 깔아준다. */ seedIfNeeded() { if (this._read(KEYS.SEEDED, false)) return; const reviews = this.getReviews(); RESTAURANTS.forEach((r) => { if (!reviews[r.id]) reviews[r.id] = []; (r.seedReviews || []).forEach((sr, i) => { reviews[r.id].push({ id: `${r.id}-seed-${i}`, user: "익명학우", rating: sr.rating, text: sr.text, date: new Date(Date.now() - (i + 1) * 86400000).toISOString(), }); }); }); this.setReviews(reviews); this._write(KEYS.SEEDED, true); }, }; /** * auth.js * 회원가입 / 로그인 / 로그아웃을 담당하는 모듈. */ const Auth = { MIN_LEN: 4, validate(username, password) { if (!username || !password) { return "아이디와 비밀번호를 모두 입력해주세요."; } if (username.length < this.MIN_LEN || password.length < this.MIN_LEN) { return `아이디와 비밀번호는 ${this.MIN_LEN}자 이상이어야 합니다.`; } if (/\s/.test(username)) { return "아이디에는 공백을 사용할 수 없습니다."; } return null; }, signup(username, password) { const err = this.validate(username, password); if (err) return { ok: false, message: err }; const users = Storage.getUsers(); if (users[username]) { return { ok: false, message: "이미 사용 중인 아이디입니다." }; } users[username] = password; Storage.setUsers(users); Storage.setCurrentUser(username); return { ok: true }; }, login(username, password) { const users = Storage.getUsers(); if (!users[username] || users[username] !== password) { return { ok: false, message: "아이디 또는 비밀번호가 일치하지 않습니다." }; } Storage.setCurrentUser(username); return { ok: true }; }, logout() { Storage.clearCurrentUser(); }, getCurrentUser() { return Storage.getCurrentUser(); }, }; /** * app.js * 화면 렌더링과 사용자 상호작용을 담당하는 메인 애플리케이션 모듈. * * 설계 메모 * - 프레임워크 없이 템플릿 문자열 + innerHTML 로 렌더링한다. * - 검색창/리뷰 작성란처럼 "타이핑 중 포커스를 잃으면 안 되는" 요소는 * 해당 요소가 속한 작은 영역만 다시 그리고, 입력 이벤트 자체로는 * 상위 전체를 다시 그리지 않도록 분리했다 (updateGrid 등 참고). * - 사용자 입력 텍스트는 escapeHtml 로 이스케이프하여 화면이 깨지지 * 않도록 한다. */ const App = { state: { view: "list", // 'list' | 'bookmarks' category: "전체", query: "", buildingId: "", sort: "default", // 'default' | 'rating' | 'distance' activeId: null, // 상세 모달에서 보고 있는 식당 id draftRating: 0, // 작성 중인 리뷰 별점 draftText: "", // 작성 중인 리뷰 텍스트(재렌더 시 보존) reviewError: "", authMode: "login", // 'login' | 'signup' authError: "", }, init() { Storage.seedIfNeeded(); this.bindEvents(); this.renderRoot(); }, // ---------- 최상위 렌더 ---------- renderRoot() { const root = document.getElementById("app"); const user = Auth.getCurrentUser(); root.innerHTML = user ? this.mainTemplate() : this.authTemplate(); }, // ==================================================================== // 인증 화면 // ==================================================================== authTemplate() { const { authMode, authError } = this.state; return `
-KOREA UNIV. AREA DINING GUIDE
-고대 식당 안내
-고려대학교 근처 식당을 카테고리·평점·거리·혼잡도로 찾아보세요.
+        // 식당 데이터 (인라인)
+        const cafeteriaData = [
+            {
+                id: 1,
+                name: "학생회관 학생식당",
+                location: "학생회관 지하 1층",
+                category: "student",
+                hours: {
+                    weekday: "08:00 - 19:00",
+                    saturday: "11:30 - 13:30",
+                    sunday: "휴무"
+                },
+                menus: [
+                    { name: "백반", price: "4,500원" },
+                    { name: "덮밥류", price: "5,000원" },
+                    { name: "라면", price: "3,000원" }
+                ],
+                tags: ["학생할인", "카드결제", "모바일주문"]
+            },
+            {
+                id: 2,
+                name: "하나스퀘어 푸드코트",
+                location: "하나스퀘어 지하 1층",
+                category: "student",
+                hours: {
+                    weekday: "10:30 - 20:00",
+                    saturday: "11:00 - 15:00",
+                    sunday: "휴무"
+                },
+                menus: [
+                    { name: "한식", price: "5,500원" },
+                    { name: "중식", price: "6,000원" },
+                    { name: "양식", price: "6,500원" },
+                    { name: "일식", price: "6,000원" }
+                ],
+                tags: ["다양한메뉴", "넓은좌석", "카드결제"]
+            },
+            {
+                id: 3,
+                name: "CJ 푸드빌 교직원식당",
+                location: "교우회관 2층",
+                category: "faculty",
+                hours: {
+                    weekday: "11:30 - 13:30",
+                    saturday: "휴무",
+                    sunday: "휴무"
+                },
+                menus: [
+                    { name: "정식 A", price: "7,000원" },
+                    { name: "정식 B", price: "8,000원" },
+                    { name: "스페셜", price: "9,000원" }
+                ],
+                tags: ["교직원전용", "프리미엄", "예약가능"]
+            },
+            {
+                id: 4,
+                name: "애기능 학생식당",
+                location: "애기능생활관 1층",
+                category: "student",
+                hours: {
+                    weekday: "07:30 - 19:00",
+                    saturday: "08:00 - 14:00",
+                    sunday: "휴무"
+                },
+                menus: [
+                    { name: "조식", price: "3,500원" },
+                    { name: "중식", price: "4,500원" },
+                    { name: "석식", price: "4,500원" }
+                ],
+                tags: ["기숙사", "조식운영", "가성비"]
+            },
+            {
+                id: 5,
+                name: "스타벅스 중앙광장점",
+                location: "중앙광장",
+                category: "cafe",
+                hours: {
+                    weekday: "08:00 - 21:00",
+                    saturday: "09:00 - 18:00",
+                    sunday: "10:00 - 17:00"
+                },
+                menus: [
+                    { name: "아메리카노", price: "4,500원" },
+                    { name: "카페라떼", price: "5,000원" },
+                    { name: "프라푸치노", price: "6,000원" }
+                ],
+                tags: ["주말운영", "테이크아웃", "스타벅스리워드"]
+            },
+            {
+                id: 6,
+                name: "이디야커피 문과대점",
+                location: "문과대학 1층",
+                category: "cafe",
+                hours: {
+                    weekday: "08:30 - 20:00",
+                    saturday: "10:00 - 17:00",
+                    sunday: "휴무"
+                },
+                menus: [
+                    { name: "아메리카노", price: "3,200원" },
+                    { name: "카페라떼", price: "3,700원" },
+                    { name: "토스트", price: "2,800원" }
+                ],
+                tags: ["학생할인", "와이파이", "콘센트"]
+            },
+            {
+                id: 7,
+                name: "CU 편의점 중앙도서관점",
+                location: "중앙도서관 지하 1층",
+                category: "convenience",
+                hours: {
+                    weekday: "07:00 - 23:00",
+                    saturday: "09:00 - 22:00",
+                    sunday: "10:00 - 22:00"
+                },
+                menus: [
+                    { name: "도시락", price: "3,500원~" },
+                    { name: "삼각김밥", price: "1,200원~" },
+                    { name: "컵라면", price: "1,500원~" }
+                ],
+                tags: ["24시간아님", "간편식", "ATM"]
+            },
+            {
+                id: 8,
+                name: "GS25 공학관점",
+                location: "공학관 1층",
+                category: "convenience",
+                hours: {
+                    weekday: "00:00 - 24:00",
+                    saturday: "00:00 - 24:00",
+                    sunday: "00:00 - 24:00"
+                },
+                menus: [
+                    { name: "도시락", price: "3,500원~" },
+                    { name: "샌드위치", price: "2,500원~" },
+                    { name: "음료", price: "1,500원~" }
+                ],
+                tags: ["24시간", "복사기", "택배"]
+            },
+            {
+                id: 9,
+                name: "라이시움 식당",
+                location: "라이시움 2층",
+                category: "student",
+                hours: {
+                    weekday: "11:00 - 14:00, 17:00 - 19:00",
+                    saturday: "휴무",
+                    sunday: "휴무"
+                },
+                menus: [
+                    { name: "뷔페", price: "6,500원" },
+                    { name: "특선", price: "7,500원" }
+                ],
+                tags: ["뷔페형식", "다양한반찬", "샐러드바"]
+            },
+            {
+                id: 10,
+                name: "호랑이굴 카페",
+                location: "백주년기념관 1층",
+                category: "cafe",
+                hours: {
+                    weekday: "09:00 - 18:00",
+                    saturday: "휴무",
+                    sunday: "휴무"
+                },
+                menus: [
+                    { name: "드립커피", price: "3,500원" },
+                    { name: "수제케이크", price: "5,500원" },
+                    { name: "브런치세트", price: "9,000원" }
+                ],
+                tags: ["분위기좋음", "수제디저트", "조용함"]
+            },
+            {
+                id: 11,
+                name: "국제관 교직원식당",
+                location: "국제관 지하 1층",
+                category: "faculty",
+                hours: {
+                    weekday: "11:30 - 14:00",
+                    saturday: "휴무",
+                    sunday: "휴무"
+                },
+                menus: [
+                    { name: "한정식", price: "8,500원" },
+                    { name: "양식", price: "9,000원" }
+                ],
+                tags: ["교직원전용", "조용함", "주차가능"]
+            },
+            {
+                id: 12,
+                name: "세븐일레븐 정경대점",
+                location: "정경대학 1층",
+                category: "convenience",
+                hours: {
+                    weekday: "07:00 - 22:00",
+                    saturday: "09:00 - 18:00",
+                    sunday: "휴무"
+                },
+                menus: [
+                    { name: "간편식", price: "2,000원~" },
+                    { name: "음료", price: "1,200원~" },
+                    { name: "과자", price: "1,000원~" }
+                ],
+                tags: ["빠른결제", "포인트적립"]
+            }
+        ];
 
-로그인 회원가입
-아이디 
-4자 이상
- 비밀번호 
-4자 이상
- ${authError ? `
-${this.esc(authError)}
+        // 현재 시간 기준 영업 상태 확인
+        function getOperatingStatus(hours) {
+            const now = new Date();
+            const day = now.getDay();
+            const currentTime = now.getHours()  100 + now.getMinutes();
 
-` : ""} ${authMode === "login" ? "로그인" : "회원가입하고 시작하기"}
-데모 계정 안내: 이 앱은 별도 서버 없이 브라우저 저장소(localStorage)에 계정을 저장합니다. 같은 브라우저에서만 로그인 정보가 유지돼요.
+            let todayHours;
+            if (day === 0) {
+                todayHours = hours.sunday;
+            } else if (day === 6) {
+                todayHours = hours.saturday;
+            } else {
+                todayHours = hours.weekday;
+            }
 
-`; }, // ==================================================================== // 메인 화면 // ==================================================================== mainTemplate() { const user = Auth.getCurrentUser(); return `
-고대
-고대 식당 안내
-안암 캠퍼스 근처 맛집 찾기
+            if (todayHours === "휴무") {
+                return { isOpen: false, text: "휴무" };
+            }
 
-${this.esc(user)}님 로그아웃
-${this.esc(this.state.query)}
-현재 위치 
-건물을 선택하세요
- 정렬 
-기본순
-${this.viewTabsTemplate()}
-${this.categoryTabsTemplate()}
-${this.gridTemplate()}
-`; }, viewTabsTemplate() { const { view } = this.state; return `
-전체 식당 내 북마크
-`; }, categoryTabsTemplate() { const { category } = this.state; return `
-${CATEGORIES.map(c => ` ${c} `).join("")}
-`; }, // ---------- 식당 목록 ---------- getFilteredSorted() { const s = this.state; let list = RESTAURANTS.slice(); if (s.view === "bookmarks") { const ids = Storage.getBookmarkIds(Auth.getCurrentUser()); list = list.filter(r => ids.includes(r.id)); } if (s.category !== "전체") { list = list.filter(r => r.category === s.category); } if (s.query.trim()) { const q = s.query.trim().toLowerCase(); list = list.filter(r => r.name.toLowerCase().includes(q) || r.menu.some(m => m.name.toLowerCase().includes(q)) ); } const building = BUILDINGS.find(b => b.id === s.buildingId) || null; list = list.map(r => ({ ...r, _distance: building ? Geo.distanceMeters(building.lat, building.lng, r.lat, r.lng) : null, _avg: this.getAverage(r.id), _congestion: this.getCongestionStatus(r.id), })); if (s.sort === "rating") { list.sort((a, b) => (b._avg ?? -1) - (a._avg ?? -1)); } else if (s.sort === "distance" && building) { list.sort((a, b) => a._distance - b._distance); } return { list, building }; }, gridTemplate() { const { list, building } = this.getFilteredSorted(); const needsBuildingHint = this.state.sort === "distance" && !building; if (!list.length) { return ` ${needsBuildingHint ? this.distanceHintTemplate() : ""}
-${this.state.view === "bookmarks" ? "아직 북마크한 식당이 없어요." : "조건에 맞는 식당이 없어요."}
+            if (todayHours === "00:00 - 24:00") {
+                return { isOpen: true, text: "24시간 영업" };
+            }
 
-검색어나 필터를 바꿔보세요.
+            // 시간 파싱 (쉼표로 구분된 복수 시간대 지원)
+            const timeRanges = todayHours.split(", ");
+            for (const range of timeRanges) {
+                const [start, end] = range.split(" - ");
+                const [startHour, startMin] = start.split(":").map(Number);
+                const [endHour, endMin] = end.split(":").map(Number);
+                
+                const startTime = startHour  100 + startMin;
+                const endTime = endHour  100 + endMin;
 
-`; } return ` ${needsBuildingHint ? this.distanceHintTemplate() : ""}
-${list.map(r => this.cardTemplate(r)).join("")}
-`; }, distanceHintTemplate() { return `
-거리순 정렬을 사용하려면 먼저 '현재 위치' 건물을 선택하세요. 지금은 기본 순서로 표시됩니다.
+                if (currentTime >= startTime && currentTime <= endTime) {
+                    return { isOpen: true, text: "영업중" };
+                }
+            }
 
-`; }, cardTemplate(r) { const user = Auth.getCurrentUser(); const bookmarked = Storage.isBookmarked(user, r.id); const icon = CATEGORY_ICON[r.category] || "🍴"; const ratingLabel = r._avg != null ? r._avg.toFixed(1) : "평점 없음"; const distanceLabel = r._distance != null ? Geo.formatDistance(r._distance) : null; const cong = r._congestion; return `
-${icon} ${bookmarked ? "★" : "☆"}
-${this.esc(r.name)}
-${this.esc(r.category)}
-${this.esc(r.description)}
+            return { isOpen: false, text: "영업종료" };
+        }
 
-★ ${ratingLabel} ${this.esc(r.priceRange)}
-${distanceLabel ? `🚶 ${distanceLabel}` : `거리 미확인`} ${this.congestionBadge(cong)}
-`; }, congestionBadge(cong) { if (!cong) return `혼잡도 정보 없음`; const level = CONGESTION_LEVELS.find(l => l.key === cong.level); return `${cong.level} · ${cong.ageMinutes}분 전`; }, updateGrid() { document.getElementById("restaurant-grid").innerHTML = this.gridTemplate(); }, updateCategoryTabs() { document.getElementById("category-tabs").innerHTML = this.categoryTabsTemplate(); }, updateViewTabs() { document.getElementById("view-tabs").innerHTML = this.viewTabsTemplate(); }, // ==================================================================== // 상세 모달 // ==================================================================== openDetail(id) { this.state.activeId = id; this.state.draftRating = 0; this.state.draftText = ""; this.state.reviewError = ""; document.getElementById("modal-root").innerHTML = this.modalTemplate(id); }, closeModal() { this.state.activeId = null; document.getElementById("modal-root").innerHTML = ""; }, updateModal() { if (!this.state.activeId) return; document.getElementById("modal-root").innerHTML = this.modalTemplate(this.state.activeId); }, modalTemplate(id) { const r = RESTAURANTS.find(x => x.id === id); if (!r) return ""; const user = Auth.getCurrentUser(); const bookmarked = Storage.isBookmarked(user, r.id); const avg = this.getAverage(r.id); const reviews = (Storage.getReviews()[r.id] || []); const cong = this.getCongestionStatus(r.id); return `
-✕
-${CATEGORY_ICON[r.category] || "🍴"}
-${this.esc(r.category)}
-${this.esc(r.name)}
-${this.esc(r.address)}
+        // 카드 생성 함수
+        function createCard(cafeteria) {
+            const status = getOperatingStatus(cafeteria.hours);
+            
+            const menuHtml = cafeteria.menus.map(menu => 
+                <li><span>${menu.name}</span><span class="menu-price">${menu.price}</span></li>
+            ).join('');
 
-${bookmarked ? "★ 북마크됨" : "☆ 북마크"}
-${this.esc(r.description)}
+            const tagsHtml = cafeteria.tags.map(tag => 
+                <span class="tag">#${tag}</span>
+            ).join('');
 
-평점★ ${avg != null ? avg.toFixed(1) : "없음"} (${reviews.length})
-가격대${this.esc(r.priceRange)}
-메뉴
-${r.menu.map(m => `
-${this.esc(m.name)}${m.price.toLocaleString()}원
-`).join("")}
-실시간 혼잡도
-${this.congestionGaugeTemplate(cong)}
-${CONGESTION_LEVELS.map(l => ` ${l.key}으로 등록 `).join("")}
-리뷰 작성
-${this.reviewFormTemplate(r.id)}
-리뷰 (${reviews.length})
-${reviews.length ? reviews.map(rv => this.reviewItemTemplate(rv)).join("") : `
-아직 리뷰가 없어요. 첫 리뷰를 남겨보세요!
+            return 
+                <div class="cafeteria-card" data-category="${cafeteria.category}">
+                    <div class="card-header">
+                        <h2>${cafeteria.name}</h2>
+                        <div class="location">📍 ${cafeteria.location}</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-row">
+                            <div class="info-icon">⏰</div>
+                            <div class="info-content">
+                                <div class="info-label">운영시간</div>
+                                <div class="info-value">
+                                    평일: ${cafeteria.hours.weekday}<br>
+                                    토요일: ${cafeteria.hours.saturday}<br>
+                                    일요일: ${cafeteria.hours.sunday}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon">📋</div>
+                            <div class="info-content">
+                                <div class="info-label">현재 상태</div>
+                                <div class="info-value">
+                                    <span class="status-badge ${status.isOpen ? 'status-open' : 'status-closed'}">
+                                        ${status.isOpen ? '🟢' : '🔴'} ${status.text}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon">🍽️</div>
+                            <div class="info-content">
+                                <div class="info-label">대표 메뉴</div>
+                                <ul class="menu-list">${menuHtml}</ul>
+                            </div>
+                        </div>
+                        <div class="tags">${tagsHtml}</div>
+                    </div>
+                </div>
+            ;
+        }
 
-`}
-`; }, congestionGaugeTemplate(cong) { const levelInfo = cong ? CONGESTION_LEVELS.find(l => l.key === cong.level) : null; const filledSeats = levelInfo ? levelInfo.seats : null; const seats = Array.from({ length: 4 }, (_, i) => { const filled = filledSeats != null && i < filledSeats; return ``; }).join(""); return `
-${seats}
-${cong ? `${cong.level} · ${cong.ageMinutes}분 전 등록` : `아직 등록된 혼잡도 정보가 없어요`}
-`; }, reviewFormTemplate(restaurantId) { const { draftRating, draftText, reviewError } = this.state; return `
-${[1, 2, 3, 4, 5].map(n => ` ★ `).join("")} ${draftRating ? draftRating + "점" : "별점을 선택하세요"}
-${this.esc(draftText)}
- ${reviewError ? `
-${this.esc(reviewError)}
+        // 카드 렌더링
+        function renderCards(filter = 'all') {
+            const grid = document.getElementById('cafeteriaGrid');
+            const filteredData = filter === 'all' 
+                ? cafeteriaData 
+                : cafeteriaData.filter(c => c.category === filter);
+            
+            grid.innerHTML = filteredData.map(createCard).join('');
+        }
 
-` : ""} 리뷰 등록
-`; }, reviewItemTemplate(rv) { return `
-${this.esc(rv.user)} ★ ${rv.rating} ${this.formatRelative(rv.date)}
-${this.esc(rv.text)}
+        // 필터 버튼 이벤트
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                renderCards(this.dataset.filter);
+            });
+        });
 
-`; }, // ==================================================================== // 계산 헬퍼 // ==================================================================== getAverage(restaurantId) { const reviews = Storage.getReviews()[restaurantId] || []; if (!reviews.length) return null; const sum = reviews.reduce((s, r) => s + r.rating, 0); return sum / reviews.length; }, getCongestionStatus(restaurantId) { const reports = Storage.getCongestion()[restaurantId] || []; if (!reports.length) return null; const latest = reports[0]; const ageMs = Date.now() - new Date(latest.time).getTime(); const THREE_HOURS = 3 * 60 * 60 * 1000; if (ageMs > THREE_HOURS) return null; return { level: latest.level, time: latest.time, ageMinutes: Math.max(0, Math.round(ageMs / 60000)) }; }, formatRelative(iso) { const ms = Date.now() - new Date(iso).getTime(); const min = Math.floor(ms / 60000); if (min < 1) return "방금 전"; if (min < 60) return `${min}분 전`; const hr = Math.floor(min / 60); if (hr < 24) return `${hr}시간 전`; const day = Math.floor(hr / 24); return `${day}일 전`; }, esc(str) { return String(str).replace(/[&<>"']/g, c => ({ "&": "&", "<": "<", ">": ">", '"': """, "'": "'", }[c])); }, // ==================================================================== // 이벤트 바인딩 (이벤트 위임: #app 에 한 번만 붙인다) // ==================================================================== bindEvents() { const root = document.getElementById("app"); root.addEventListener("click", (e) => { const target = e.target.closest("[data-action]"); if (!target) return; // 카드 안의 북마크 버튼처럼, 클릭이 상위 카드 클릭으로 전파되면 안 되는 경우 if (target.dataset.stop) e.stopPropagation(); const action = target.dataset.action; switch (action) { case "auth-tab": this.state.authMode = target.dataset.mode; this.state.authError = ""; this.renderRoot(); break; case "logout": Auth.logout(); this.state = { ...this.state, view: "list", activeId: null }; this.renderRoot(); break; case "set-view": this.state.view = target.dataset.view; this.updateViewTabs(); this.updateGrid(); break; case "set-category": this.state.category = target.dataset.category; this.updateCategoryTabs(); this.updateGrid(); break; case "open-detail": this.openDetail(target.dataset.id); break; case "close-modal": if (e.target === target) this.closeModal(); break; case "toggle-bookmark": { const user = Auth.getCurrentUser(); Storage.toggleBookmark(user, target.dataset.id); if (this.state.activeId === target.dataset.id) this.updateModal(); this.updateGrid(); break; } case "report-congestion": { const user = Auth.getCurrentUser(); Storage.addCongestionReport(target.dataset.id, { id: `c-${Date.now()}`, user, level: target.dataset.level, time: new Date().toISOString(), }); this.updateModal(); this.updateGrid(); break; } case "set-star": this.state.draftRating = Number(target.dataset.star); this.updateModal(); break; } }); // 모달은 오버레이 바깥(=카드 바깥 영역) 클릭 시에도 닫히도록 root.addEventListener("click", (e) => { if (e.target.classList.contains("modal-overlay")) this.closeModal(); }); root.addEventListener("submit", (e) => { const form = e.target.closest("[data-form]"); if (!form) return; e.preventDefault(); const formName = form.dataset.form; if (formName === "login" || formName === "signup") { const username = form.username.value.trim(); const password = form.password.value; const result = formName === "login" ? Auth.login(username, password) : Auth.signup(username, password); if (!result.ok) { this.state.authError = result.message; this.renderRoot(); } else { this.state.authError = ""; this.renderRoot(); } } if (formName === "review") { const id = form.dataset.id; const text = form.querySelector("#review-text").value.trim(); if (this.state.draftRating === 0) { this.state.reviewError = "별점을 선택해주세요."; this.state.draftText = text; this.updateModal(); return; } if (text.length < 2) { this.state.reviewError = "리뷰 내용을 2자 이상 입력해주세요."; this.state.draftText = text; this.updateModal(); return; } Storage.addReview(id, { id: `rv-${Date.now()}`, user: Auth.getCurrentUser(), rating: this.state.draftRating, text, date: new Date().toISOString(), }); this.state.draftRating = 0; this.state.draftText = ""; this.state.reviewError = ""; this.updateModal(); this.updateGrid(); } }); // 입력 중에는 해당 요소만 상태에 반영 (전체 재렌더 금지 -> 포커스 유지) root.addEventListener("input", (e) => { if (e.target.id === "search-input") { this.state.query = e.target.value; this.updateGrid(); } if (e.target.id === "review-text") { this.state.draftText = e.target.value; } }); root.addEventListener("change", (e) => { if (e.target.id === "building-select") { this.state.buildingId = e.target.value; this.updateGrid(); } if (e.target.id === "sort-select") { this.state.sort = e.target.value; this.updateGrid(); } }); }, }; document.addEventListener("DOMContentLoaded", () => App.init());
+        // 초기 렌더링
+        renderCards();
+
+        // 1분마다 영업 상태 업데이트
+        setInterval(() => renderCards(document.querySelector('.filter-btn.active').dataset.filter), 60000);
     </script>
 </body>
 </html>
+`
